@@ -71,7 +71,7 @@ header {
   color: var(--background-color-light-2);
   padding: 15px;
   text-align: center;
-  box-shadow: 0 4px 2px -2px var(--box-shadow-color);
+  box-shadow: 0 2px 2px -2px var(--box-shadow-color);
   width: 100%;
   z-index: 1000;
   position: relative; /* Change from fixed to relative */
@@ -102,7 +102,7 @@ h1 {
   width: var(--sidebar-width);
   background-color: var(--background-color-dark-1);
   padding-top: 60px;
-  box-shadow: 2px 0 5px var(--box-shadow-color);
+  box-shadow: 1px 0 0px var(--box-shadow-color);
   height: 100vh;
   position: fixed;
   top: 0;
@@ -193,7 +193,7 @@ h1 {
   position: absolute;
   top: 50px;
   left: 50px;
-  box-shadow: 0 0 15px var(--box-shadow-color);
+  box-shadow: 0 0 4px var(--box-shadow-color);
   border-radius: 4px;
   overflow: hidden;
   background-color: var(--background-color-medium-1);
@@ -264,7 +264,6 @@ h1 {
 .close-button:hover {
   background-color: var(--background-color-medium-1);
 }
-
 .window-tabs {
   display: flex; /* Use flexbox for layout */
   flex-direction: row; /* Arrange children in a row */
@@ -293,6 +292,12 @@ h1 {
 .window-tab:not(.selected):hover {
   border-top: 1px solid var(--border-color-info);
   background-color: var(--background-color-dark-2);
+}
+
+.window-tab-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* mui */

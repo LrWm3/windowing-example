@@ -154,8 +154,10 @@ function makeDraggable(element, header) {
           break;
         } else if (insertable.getAttribute("drag-insertable") === "tabify") {
           console.log(`Resizing to ${insertable.className}`);
+
           // TODO - tabify the window
-          resizeElementTo(element, insertable, insertable.className);
+          //  we assume here the parent element contains both a content section and a tab section
+          newTabFromWindow(insertable.parentElement, element);
           break;
         }
       }
@@ -311,6 +313,103 @@ function makeMaximizable(element, viewport, maximizeButton) {
   });
 }
 
+function newTabFromWindow(window, windowToMakeTab) {
+  // if window and windowToMakeTab are the same, do nothing
+  // this happens sometimes when we resize a lot and then move due to weird html jank
+  if (window === windowToMakeTab) {
+    console.log("Trying to add window to its own tab group.");
+    return;
+  }
+
+  // We get the window contents and tabs from 'windowToMakeTab' and insert them into 'window'
+  //   we make the selected tab from windowToMakeTab the new selected tab in 'window'
+  const tabSection = window.querySelector(".window-tabs");
+  const contentSection = window.querySelector(".window-content");
+
+  const tabSectionToTabify = windowToMakeTab.querySelector(".window-tabs");
+  const contentSectionToTabify =
+    windowToMakeTab.querySelector(".window-content");
+
+  // Get the selected tab from the window to tabify
+  const selectedTab = tabSectionToTabify.querySelector(".selected");
+  const selectedTabContent = contentSectionToTabify.querySelector(
+    `.${selectedTab.id}`
+  );
+
+  // For each tab in the window to tabify, create a new tab in the window
+  tabSectionToTabify.querySelectorAll(".window-tab").forEach((tab) => {
+    // FIXME - ends up being n^2 complexity, could do everything in a single pass
+    const tabContent = contentSectionToTabify.querySelector(
+      `.window-content-${tab.id}`
+    );
+    createNewTabFromContent(
+      window,
+      tab.textContent,
+      tabContent.innerHTML,
+      selectedTab.id === tab.id
+    );
+  });
+
+  // Remove the window we have tabify
+  windowToMakeTab.remove();
+}
+
+function switchToTab(window, tab) {
+  const tabSection = window.querySelector(".window-tabs");
+  tabSection.querySelectorAll(".window-tab").forEach((tab) => {
+    tab.classList.remove("selected");
+  });
+  tab.classList.add("selected");
+  // find the content
+  const contentSection = window.querySelector(".window-content");
+  const content = contentSection.querySelector(`.window-content-${tab.id}`);
+  contentSection.querySelectorAll(".window-content-tab").forEach((content) => {
+    content.style.display = "none";
+  });
+  content.style.display = "block";
+}
+
+function createNewTabFromContent(
+  window,
+  tabTitle,
+  content,
+  switchToNewTab = true
+) {
+  // Get the tab section of the window
+  const tabSection = window.querySelector(".window-tabs");
+
+  // Get the content section of the window
+  const contentSection = window.querySelector(".window-content");
+
+  const newTab = document.createElement("div");
+  newTab.className = "window-tab";
+  newTab.id = `tab${Math.round(Math.random() * 100000)}`;
+  newTab.addEventListener("click", () => {
+    // TODO - could be shift click to select multiple tabs
+    //          however this is pretty far from being implemented.
+    console.log(`Switching to tab ${tabTitle}`);
+    // find other elements which are children of tabSection and remove the selected class
+    switchToTab(window, newTab);
+  });
+
+  const newTabLabel = document.createElement("label");
+  newTabLabel.className = "window-tab-label";
+  newTabLabel.textContent = tabTitle;
+
+  newTab.appendChild(newTabLabel);
+  tabSection.appendChild(newTab);
+
+  const newContent = document.createElement("div");
+  newContent.className = `window-content-${newTab.id} window-content-tab`;
+  newContent.textContent = content;
+  newContent.style.display = "none";
+  contentSection.appendChild(newContent);
+
+  if (switchToNewTab) {
+    switchToTab(window, newTab);
+  }
+}
+
 function createNewWindow() {
   windowCount++;
 
@@ -338,19 +437,8 @@ function createNewWindow() {
   newTabSection.className = "window-tabs drag-insertable";
   newTabSection.setAttribute("drag-insertable", "tabify");
 
-  const newTab = document.createElement("div");
-  newTab.className = "window-tab selected";
-
-  const newTabLabel = document.createElement("label");
-  newTabLabel.className = "window-tab-label";
-  newTabLabel.textContent = `Window ${windowCount}`; // Default tab title
-
-  newTab.appendChild(newTabLabel);
-  newTabSection.appendChild(newTab);
-
   const newContent = document.createElement("div");
   newContent.className = "window-content";
-  newContent.textContent = `Content of Window ${windowCount}`;
 
   const newExpand = document.createElement("div");
   newExpand.className = "resize-handle";
@@ -366,6 +454,20 @@ function createNewWindow() {
   newWindow.appendChild(newContent);
   newWindow.appendChild(newExpand);
   document.body.appendChild(newWindow);
+
+  createNewTabFromContent(
+    newWindow,
+    `Window ${windowCount}`,
+    `Content of Window ${windowCount}`,
+    true
+  );
+
+  createNewTabFromContent(
+    newWindow,
+    `Window ${windowCount}0`,
+    `Content of Window ${windowCount}0`,
+    true
+  );
 
   newWindow.setAttribute(WINDOW_MODE, WINDOW_MODE_FLOATING);
   makeMaximizable(newWindow, viewport, newMaximizeButton);

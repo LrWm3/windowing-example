@@ -24,3 +24,4 @@ Mostly as a way to learn more about more complicated front-end development.
 - [ ] Can load other html snippets in the windows and have them work appropriately (or something)
 - [ ] Can combine windows via the tab bar
 - [ ] Better event intercepter between dragging and clicking buttons; don't want interaction to flow through windows
+- [ ] As browser window resizes, the windows also resize appropriately, if maximized
