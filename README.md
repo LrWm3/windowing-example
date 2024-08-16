@@ -4,6 +4,10 @@ Playing around with creating a simple windowing library.
 
 Mostly as a way to learn more about more complicated front-end development.
 
+## See it live
+
+[Github Project Page - Windowing Example](https://lrwm3.github.io/windowing-example/)
+
 ## Features
 
 - [x] Can create windows
@@ -14,6 +18,7 @@ Mostly as a way to learn more about more complicated front-end development.
 - [x] Can drag window to left, right to take up half the screen
 - [x] Can close windows
 - [x] Dragging drags the window from the right spot
+- [ ] Dragging when maximized reverts to previous size
 - [ ] Can load other html snippets in the windows and have them work appropriately (or something)
 - [ ] Can combine windows via the tab bar
 - [ ] Better drag events; sometimes want the main drag event to fire once we've dragged far enough away from the origin point of the window.
