@@ -35,11 +35,13 @@ function makeDraggable(element, header) {
 
     if (element.getAttribute(WINDOW_DRAG_DISABLED) === "true") {
       // don't allow dragging if the window is has just been maximized
+      elementPreDragStop();
       return;
     }
 
     if (element.getAttribute(WINDOW_MODE) === WINDOW_MODE_MAXIMIZED) {
       document.onmousemove = (ev) => checkDragThreshold(ev, elementDragStart);
+      document.onmouseup = elementPreDragStop;
     } else {
       // no precondition for dragging if the window is not currently considered "full"
       elementDragStart(e);
@@ -49,6 +51,7 @@ function makeDraggable(element, header) {
   function checkDragThreshold(e, startDrag) {
     const distanceY = e.clientY - initRect.top;
     const distanceX = e.clientX - initRect.left;
+    const distanceYMouse = Math.abs(e.clientY - mouseY);
 
     if (element.getAttribute(WINDOW_DRAG_DISABLED) === "true") {
       elementPreDragStop();
@@ -58,7 +61,7 @@ function makeDraggable(element, header) {
       elementPreDragStop();
     }
 
-    if (distanceY < 8 || distanceY > 24) {
+    if (distanceYMouse > 4 && (distanceY < 8 || distanceY > 24)) {
       startDrag(e);
     }
   }
