@@ -1,3 +1,16 @@
+const WINDOW_MODE = "data-window-mode";
+const WINDOW_MODE_FLOATING = "floating";
+const WINDOW_MODE_MAXIMIZED = "maximized";
+const WINDOW_MODE_MAXIMIZED_TYPE = "data-window-mode-maximized";
+const WINDOW_DRAG_DISABLED = "data-window-drag-disabled";
+const WINDOW_MODE_MAXIMIZED_TYPES = {
+  full: "full",
+  left: "left",
+  right: "right",
+  top: "top",
+  bottom: "bottom",
+};
+
 let windowCount = 0;
 let highestZIndex = 1;
 
@@ -5,17 +18,57 @@ function bringToFront(element) {
   highestZIndex++;
   element.style.zIndex = highestZIndex;
 }
-
 function makeDraggable(element, header) {
   let offsetX = 0,
     offsetY = 0,
     mouseX = 0,
-    mouseY = 0;
+    mouseY = 0,
+    initRect = element.getBoundingClientRect();
 
-  header.onmousedown = dragMouseDown;
+  header.onmousedown = elementPreDragMouseDown;
 
-  function dragMouseDown(e) {
+  function elementPreDragMouseDown(e) {
     e.preventDefault();
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    initRect = element.getBoundingClientRect();
+
+    if (element.getAttribute(WINDOW_DRAG_DISABLED) === "true") {
+      // don't allow dragging if the window is has just been maximized
+      return;
+    }
+
+    if (element.getAttribute(WINDOW_MODE) === WINDOW_MODE_MAXIMIZED) {
+      document.onmousemove = (ev) => checkDragThreshold(ev, elementDragStart);
+    } else {
+      // no precondition for dragging if the window is not currently considered "full"
+      elementDragStart(e);
+    }
+  }
+
+  function checkDragThreshold(e, startDrag) {
+    const distanceY = e.clientY - initRect.top;
+    const distanceX = e.clientX - initRect.left;
+
+    if (element.getAttribute(WINDOW_DRAG_DISABLED) === "true") {
+      elementPreDragStop();
+    }
+
+    if (distanceX < 8 || distanceX > initRect.width - 4) {
+      elementPreDragStop();
+    }
+
+    if (distanceY < 8 || distanceY > 24) {
+      startDrag(e);
+    }
+  }
+
+  function elementPreDragStop() {
+    document.onmousemove = null;
+    document.onmouseup = null;
+  }
+
+  function elementDragStart(e) {
     mouseX = e.clientX;
     mouseY = e.clientY;
     // Get the data attributes for width and height & if present, restore the element to its original size
@@ -27,9 +80,12 @@ function makeDraggable(element, header) {
 
       element.style.width = width;
       element.style.height = height;
-      // remove the data attributes
+      // remove the data attributes, if present
+      element.removeAttribute("data-top");
+      element.removeAttribute("data-left");
       element.removeAttribute("data-width");
       element.removeAttribute("data-height");
+      element.setAttribute(WINDOW_MODE, WINDOW_MODE_FLOATING);
 
       // we want position the resized window so that the window is positioned relative to the mouse,
       //   relative as in where it would be if the window was not resized
@@ -51,8 +107,8 @@ function makeDraggable(element, header) {
       element.style.left = `${newLeft}px`;
     }
 
-    document.onmouseup = closeDragElement;
     document.onmousemove = elementDrag;
+    document.onmouseup = elementDragStop;
   }
 
   function elementDrag(e) {
@@ -73,7 +129,7 @@ function makeDraggable(element, header) {
     });
   }
 
-  function closeDragElement() {
+  function elementDragStop() {
     document.onmouseup = null;
     document.onmousemove = null;
 
@@ -110,6 +166,7 @@ function makeDraggable(element, header) {
       "data-height",
       `${element.getBoundingClientRect().height}px`
     );
+    element.setAttribute(WINDOW_MODE, WINDOW_MODE_MAXIMIZED);
 
     element.style.width = `${targetRect.width}px`;
     element.style.height = `${targetRect.height}px`;
@@ -122,18 +179,34 @@ function makeDraggable(element, header) {
       if (content.includes("left")) {
         element.style.width = `${halfWidth}px`;
         element.style.left = `${targetRect.left}px`;
+        element.setAttribute(
+          WINDOW_MODE_MAXIMIZED_TYPE,
+          WINDOW_MODE_MAXIMIZED_TYPES.left
+        );
       }
       if (content.includes("right")) {
         element.style.width = `${halfWidth}px`;
         element.style.left = `${targetRect.right - halfWidth}px`;
+        element.setAttribute(
+          WINDOW_MODE_MAXIMIZED_TYPE,
+          WINDOW_MODE_MAXIMIZED_TYPES.right
+        );
       }
       if (content.includes("top")) {
         element.style.height = `${halfHeight}px`;
         element.style.top = `${targetRect.top}px`;
+        element.setAttribute(
+          WINDOW_MODE_MAXIMIZED_TYPE,
+          WINDOW_MODE_MAXIMIZED_TYPES.top
+        );
       }
       if (content.includes("bottom")) {
         element.style.height = `${halfHeight}px`;
         element.style.top = `${targetRect.bottom - halfHeight}px`;
+        element.setAttribute(
+          WINDOW_MODE_MAXIMIZED_TYPE,
+          WINDOW_MODE_MAXIMIZED_TYPES.bottom
+        );
       }
     }
   }
@@ -178,40 +251,61 @@ function makeResizable(element, resizer) {
     document.onmousemove = null;
   }
 }
-function makeMaximizable(element, maximizeButton) {
-  let isMaximized = false;
-  let originalSize = {};
-
+function makeMaximizable(element, viewport, maximizeButton) {
   maximizeButton.addEventListener("click", () => {
-    if (isMaximized) {
+    // disable drag for now
+    // will likely need a better event interception mechanism in the long run.
+    element.setAttribute(WINDOW_DRAG_DISABLED, "true");
+    setTimeout(() => {
+      element.removeAttribute(WINDOW_DRAG_DISABLED);
+    }, 80);
+
+    if (
+      element.getAttribute(WINDOW_MODE) === WINDOW_MODE_MAXIMIZED &&
+      element.getAttribute(WINDOW_MODE_MAXIMIZED_TYPE) ===
+        WINDOW_MODE_MAXIMIZED_TYPES.full
+    ) {
       // Restore to original size and position
-      element.style.width = originalSize.width;
-      element.style.height = originalSize.height;
-      // element.style.top = originalSize.top;
-      // element.style.left = originalSize.left;
+      element.style.top = element.getAttribute("data-top");
+      element.style.left = element.getAttribute("data-left");
+      element.style.width = element.getAttribute("data-width");
+      element.style.height = element.getAttribute("data-height");
+
       element.style.zIndex = ++highestZIndex; // Bring to front
-      isMaximized = false;
+
+      element.removeAttribute("data-top");
+      element.removeAttribute("data-left");
+      element.removeAttribute("data-width");
+      element.removeAttribute("data-height");
+      element.setAttribute(WINDOW_MODE, WINDOW_MODE_FLOATING);
+      element.removeAttribute(WINDOW_MODE_MAXIMIZED_TYPE);
     } else {
-      // Save original size and position
-      originalSize = {
-        width: element.style.width,
-        height: element.style.height,
-        top: element.style.top,
-        left: element.style.left,
-      };
+      // Save original size
+      element.setAttribute("data-top", element.style.top);
+      element.setAttribute("data-left", element.style.left);
+      element.setAttribute("data-width", element.style.width);
+      element.setAttribute("data-height", element.style.height);
+      element.setAttribute(WINDOW_MODE, WINDOW_MODE_MAXIMIZED);
+      element.setAttribute(
+        WINDOW_MODE_MAXIMIZED_TYPE,
+        WINDOW_MODE_MAXIMIZED_TYPES.full
+      );
+
       // Maximize window
-      element.style.width = "calc(100% - 240px)"; // Adjust for sidebar width
-      element.style.height = "calc(100% - 60px)"; // Adjust for header height
-      element.style.top = "60px"; // Below header
-      element.style.left = "240px"; // Right of sidebar
+      element.style.width = viewport.getBoundingClientRect().width + "px";
+      element.style.height = viewport.getBoundingClientRect().height + "px";
+      element.style.top = viewport.getBoundingClientRect().top + "px";
+      element.style.left = viewport.getBoundingClientRect().left + "px";
       element.style.zIndex = ++highestZIndex; // Bring to front
-      isMaximized = true;
     }
   });
 }
 
 function createNewWindow() {
   windowCount++;
+
+  const viewport = document.querySelector(".viewport");
+
   const newWindow = document.createElement("div");
   newWindow.className = "window";
   newWindow.id = `window${windowCount}`;
@@ -258,9 +352,10 @@ function createNewWindow() {
   newWindow.appendChild(newExpand);
   document.body.appendChild(newWindow);
 
-  makeDraggable(newWindow, newHeader);
+  newWindow.setAttribute(WINDOW_MODE, WINDOW_MODE_FLOATING);
+  makeMaximizable(newWindow, viewport, newMaximizeButton);
   makeResizable(newWindow, newExpand);
-  makeMaximizable(newWindow, newMaximizeButton);
+  makeDraggable(newWindow, newHeader);
   bringToFront(newWindow);
   newWindow.addEventListener("mousedown", () => bringToFront(newWindow));
 }
