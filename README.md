@@ -33,3 +33,4 @@ Look out for my next article; "You don't need htmx"
 - [ ] Better event intercepter between dragging and clicking buttons; don't want interaction to flow through windows
 - [ ] More example window types
 - [ ] As browser window resizes, the windows also resize appropriately, if maximized
+- [ ] Animations / ghosts when tabs / windows being placed places
