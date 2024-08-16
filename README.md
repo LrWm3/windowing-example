@@ -23,6 +23,7 @@ Mostly as a way to learn more about more complicated front-end development.
 - [x] A really bad 'event' interceptor to avoid lower events intercepting upper events
 - [x] Can combine windows via the tab bar
 - [x] Can load other html snippets in the windows and have them work appropriately (or something)
+- [ ] Change window title to match selected tab
 - [ ] Can close individual tabs inside a window
 - [ ] Can drag & reorder tabs within a window
 - [ ] Can move individual tabs between windows
