@@ -18,7 +18,7 @@ function bringToFront(element) {
   highestZIndex++;
   element.style.zIndex = highestZIndex;
 }
-function makeDraggable(element, header) {
+function makeDraggableWindow(element, header) {
   let offsetX = 0,
     offsetY = 0,
     mouseX = 0,
@@ -233,7 +233,7 @@ function makeDraggable(element, header) {
     );
   }
 }
-function makeResizable(element, resizer) {
+function makeResizableWindow(element, resizer) {
   let startX, startY, startWidth, startHeight;
 
   resizer.onmousedown = function (e) {
@@ -263,7 +263,7 @@ function makeResizable(element, resizer) {
     document.onmousemove = null;
   }
 }
-function makeMaximizable(element, viewport, maximizeButton) {
+function makeMaximizableWindow(element, viewport, maximizeButton) {
   maximizeButton.addEventListener("click", () => {
     // disable drag for now
     // will likely need a better event interception mechanism in the long run.
@@ -470,9 +470,9 @@ function createNewWindow() {
   );
 
   newWindow.setAttribute(WINDOW_MODE, WINDOW_MODE_FLOATING);
-  makeMaximizable(newWindow, viewport, newMaximizeButton);
-  makeResizable(newWindow, newExpand);
-  makeDraggable(newWindow, newHeader);
+  makeMaximizableWindow(newWindow, viewport, newMaximizeButton);
+  makeResizableWindow(newWindow, newExpand);
+  makeDraggableWindow(newWindow, newHeader);
   bringToFront(newWindow);
   newWindow.addEventListener("mousedown", () => bringToFront(newWindow));
 }
