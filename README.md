@@ -2,7 +2,9 @@
 
 Playing around with creating a simple windowing library.
 
-Mostly as a way to learn more about more complicated front-end development.
+Using this as a way to explore frameworkless vanilla javascript, css, and html development as of 2024.
+
+Look out for my next article; "You don't need htmx"
 
 ## See it live
 
