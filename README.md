@@ -21,7 +21,11 @@ Mostly as a way to learn more about more complicated front-end development.
 - [x] Dragging when maximized reverts to previous size
 - [x] Better drag events; sometimes want the main drag event to fire once we've dragged far enough away from the origin point of the window.
 - [x] A really bad 'event' interceptor to avoid lower events intercepting upper events
-- [ ] Can load other html snippets in the windows and have them work appropriately (or something)
-- [ ] Can combine windows via the tab bar
+- [x] Can combine windows via the tab bar
+- [x] Can load other html snippets in the windows and have them work appropriately (or something)
+- [ ] Can drag & reorder tabs within a window
+- [ ] Can move individual tabs between windows
+- [ ] Can promote a tab to a window by dragging it out of a window
 - [ ] Better event intercepter between dragging and clicking buttons; don't want interaction to flow through windows
+- [ ] More example window types
 - [ ] As browser window resizes, the windows also resize appropriately, if maximized
