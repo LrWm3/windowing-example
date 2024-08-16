@@ -266,6 +266,8 @@ h1 {
 }
 
 .window-tabs {
+  display: flex; /* Use flexbox for layout */
+  flex-direction: row; /* Arrange children in a row */
   background-color: var(--background-color-dark-2);
   padding: 0px;
 }
@@ -278,7 +280,6 @@ h1 {
   font-size: var(--font-size-small);
   width: fit-content;
   border-top: 1px solid var(--border-color-dark-1);
-  border-left: 1px solid var(--border-color-light-4);
   border-right: 1px solid var(--border-color-light-4);
   border-radius: 0px 0px 0px 1px;
 }
