@@ -7,6 +7,36 @@
   --background-color-light-2: #e0e0e0;
   --box-shadow-color: rgba(0, 0, 0, 0.5);
 
+  /* Text Colors */
+  --text-color-dark: #000000;
+  --text-color-light: #ffffff;
+  --text-color-dark-1: #1a1a1a;
+  --text-color-dark-2: #333333;
+  --text-color-dark-3: #4d4d4d;
+  --text-color-dark-4: #666666;
+  --text-color-light-1: #e6e6e6;
+  --text-color-light-2: #cccccc;
+  --text-color-light-3: #b3b3b3;
+  --text-color-light-4: #999999;
+
+  /* Border colors */
+  --border-color-primary: #007bff;
+  --border-color-secondary: #6c757d;
+  --border-color-success: #28a745;
+  --border-color-danger: #dc3545;
+  --border-color-warning: #ffc107;
+  --border-color-info: #17a2b8;
+  --border-color-dark: #000000;
+  --border-color-light: #ffffff;
+  --border-color-dark-1: #1a1a1a;
+  --border-color-dark-2: #333333;
+  --border-color-dark-3: #4d4d4d;
+  --border-color-dark-4: #666666;
+  --border-color-light-1: #e6e6e6;
+  --border-color-light-2: #cccccc;
+  --border-color-light-3: #b3b3b3;
+  --border-color-light-4: #999999;
+
   /* Font Size Variables */
   --font-size-small: 12px;
   --font-size-medium: 14px;
@@ -168,6 +198,9 @@ h1 {
   overflow: hidden;
   background-color: var(--background-color-medium-1);
   z-index: 10;
+
+  /* for troubleshooting window intersection events */
+  opacity: 0.7;
 }
 
 .window-header {
@@ -181,7 +214,7 @@ h1 {
 
 .window-content {
   padding: 10px;
-  background-color: var(--background-color-dark-2);
+  /* background-color: var(--background-color-dark-2); */
   color: var(--background-color-light-1);
   height: calc(100% - 40px);
   overflow: auto;
@@ -236,16 +269,29 @@ h1 {
   background-color: var(--background-color-dark-2);
   padding: 0px;
 }
-
 .window-tab {
-  color: var(--background-color-light-2);
+  color: var(--text-color-light-1);
   background-color: var(--background-color-dark-1);
   font-weight: normal;
   text-align: left;
   padding: 4px;
-
-  /* fit content */
+  font-size: var(--font-size-small);
   width: fit-content;
+  border-top: 1px solid var(--border-color-dark-1);
+  border-left: 1px solid var(--border-color-light-4);
+  border-right: 1px solid var(--border-color-light-4);
+  border-radius: 0px 0px 0px 1px;
+}
+
+.window-tab:active,
+.window-tab.selected {
+  border-top: 1px solid var(--border-color-primary);
+  background-color: var(--background-color-medium-1);
+}
+
+.window-tab:not(.selected):hover {
+  border-top: 1px solid var(--border-color-info);
+  background-color: var(--background-color-dark-2);
 }
 
 /* mui */

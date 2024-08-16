@@ -136,7 +136,7 @@ function makeDraggable(element, header) {
     document.onmouseup = null;
     document.onmousemove = null;
 
-    // Check if the mouse is over any drag-insertable elements
+    // Check if the mouse is over any drag-insertable elements, ordering by z-index
     const dragInsertables = Array.from(
       document.querySelectorAll(".drag-insertable")
     ).sort((a, b) => {
@@ -147,10 +147,17 @@ function makeDraggable(element, header) {
 
     for (const insertable of dragInsertables) {
       if (isMouseOver(mouseX, mouseY, insertable)) {
-        console.log(`Resizing to ${insertable.className}`);
         const viewportElement = document.querySelector(".viewport");
-        resizeElementTo(element, viewportElement, insertable.className);
-        break;
+        if (insertable.getAttribute("drag-insertable") === "expand") {
+          console.log(`Resizing to ${insertable.className}`);
+          resizeElementTo(element, viewportElement, insertable.className);
+          break;
+        } else if (insertable.getAttribute("drag-insertable") === "tabify") {
+          console.log(`Resizing to ${insertable.className}`);
+          // TODO - tabify the window
+          resizeElementTo(element, insertable, insertable.className);
+          break;
+        }
       }
     }
   }
@@ -328,12 +335,17 @@ function createNewWindow() {
   });
 
   const newTabSection = document.createElement("div");
-  newTabSection.className = "window-tabs";
+  newTabSection.className = "window-tabs drag-insertable";
+  newTabSection.setAttribute("drag-insertable", "tabify");
 
   const newTab = document.createElement("div");
-  newTab.className = "window-tab";
-  newTab.textContent = `Window ${windowCount}`; // Default tab title
+  newTab.className = "window-tab selected";
 
+  const newTabLabel = document.createElement("label");
+  newTabLabel.className = "window-tab-label";
+  newTabLabel.textContent = `Window ${windowCount}`; // Default tab title
+
+  newTab.appendChild(newTabLabel);
   newTabSection.appendChild(newTab);
 
   const newContent = document.createElement("div");
