@@ -22,16 +22,33 @@ function makeDraggable(element, header) {
     const width = element.getAttribute("data-width");
     const height = element.getAttribute("data-height");
     if (width && height) {
+      // Center the location of the window on the mouse
+      const pWidth = parseInt(getComputedStyle(element).width);
+
       element.style.width = width;
       element.style.height = height;
       // remove the data attributes
       element.removeAttribute("data-width");
       element.removeAttribute("data-height");
 
-      // Center the location of the window on the mouse
-      const windowWidth = parseInt(getComputedStyle(element).width);
-      const windowLeft = e.clientX - windowWidth / 2;
-      element.style.left = `${windowLeft}px`;
+      // we want position the resized window so that the window is positioned relative to the mouse,
+      //   relative as in where it would be if the window was not resized
+
+      // First we need to get the mouse offset from the center of the window
+      const offsetX = mouseX - element.getBoundingClientRect().left;
+      const offsetY = mouseY - element.getBoundingClientRect().top;
+
+      // Next we need to calculate the new top and left positions
+      const widthDiff = parseInt(getComputedStyle(element).width) - pWidth;
+      const newTop = mouseY - offsetY;
+      const newLeft =
+        mouseX -
+        offsetX -
+        (widthDiff * (mouseX - element.getBoundingClientRect().left)) / pWidth;
+
+      // Finally we set the new top and left positions
+      element.style.top = `${newTop}px`;
+      element.style.left = `${newLeft}px`;
     }
 
     document.onmouseup = closeDragElement;
